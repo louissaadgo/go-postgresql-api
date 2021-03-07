@@ -2,7 +2,6 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -21,15 +20,22 @@ func router() *mux.Router {
 
 func TestNewAuthor(t *testing.T) {
 	DB, err = sql.Open("postgres", "postgres://postgres:2400@localhost/library?sslmode=disable")
-	assert.Equal(t, nil, err, "OK expected")
-	fmt.Println("Connected to the database")
+	assert.Equal(t, nil, err, "Failed to connect to the database")
 	defer DB.Close()
 	payload := strings.NewReader(`{` + "" + `
-    "name": "kfk",` + "" + `
-    "lastName": "khalil"` + "" + `
+    "name": "testName",` + "" + `
+    "lastName": "testLastName"` + "" + `
 }`)
 	req, _ := http.NewRequest("POST", "/new/author", payload)
 	res := httptest.NewRecorder()
 	router().ServeHTTP(res, req)
-	assert.Equal(t, 200, res.Code, "OK expected")
+	assert.Equal(t, 200, res.Code, "Failed to handle CORRECT data")
+	payload = strings.NewReader(`{` + "" + `
+    "name": "TeeeeeeessssssssssssttttttttttNAMEeeeeee",` + "" + `
+    "lastName": "TestlassssssssssssssssssssstNaaaaaaaaaaaaaaame"` + "" + `
+}`)
+	req, _ = http.NewRequest("POST", "/new/author", payload)
+	res = httptest.NewRecorder()
+	router().ServeHTTP(res, req)
+	assert.Equal(t, 400, res.Code, "Failed to handle INCORRECT data")
 }

@@ -139,7 +139,7 @@ func NewAuthor(w http.ResponseWriter, r *http.Request) {
 	VALUES($1, $2);`, authorNew.Name, authorNew.LastName)
 	if err != nil {
 		fmt.Println(err)
-		http.Error(w, "Something went wrong, please try again soon.", http.StatusServiceUnavailable)
+		http.Error(w, "Something went wrong, please try again soon.", http.StatusBadRequest)
 		return
 	}
 	fmt.Fprintln(w, "Author was successfully created")
