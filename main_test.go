@@ -22,19 +22,41 @@ func TestNewAuthor(t *testing.T) {
 	DB, err = sql.Open("postgres", "postgres://postgres:2400@localhost/library?sslmode=disable")
 	assert.Equal(t, nil, err, "Failed to connect to the database")
 	defer DB.Close()
-	payload := strings.NewReader(`{` + "" + `
-    "name": "testName",` + "" + `
-    "lastName": "testLastName"` + "" + `
+	payload := strings.NewReader(`{
+    "name": "testName",
+    "lastName": "testLastName"
 }`)
 	req, _ := http.NewRequest("POST", "/new/author", payload)
 	res := httptest.NewRecorder()
 	router().ServeHTTP(res, req)
 	assert.Equal(t, 200, res.Code, "Failed to handle CORRECT data")
-	payload = strings.NewReader(`{` + "" + `
-    "name": "TeeeeeeessssssssssssttttttttttNAMEeeeeee",` + "" + `
-    "lastName": "TestlassssssssssssssssssssstNaaaaaaaaaaaaaaame"` + "" + `
+	payload = strings.NewReader(`{
+    "name": "TeeeeeeessssssssssssttttttttttNAMEeeeeee",
+    "lastName": "TestlassssssssssssssssssssstNaaaaaaaaaaaaaaame"
 }`)
 	req, _ = http.NewRequest("POST", "/new/author", payload)
+	res = httptest.NewRecorder()
+	router().ServeHTTP(res, req)
+	assert.Equal(t, 400, res.Code, "Failed to handle INCORRECT data")
+}
+
+func TestNewBook(t *testing.T) {
+	DB, err = sql.Open("postgres", "postgres://postgres:2400@localhost/library?sslmode=disable")
+	assert.Equal(t, nil, err, "Failed to connect to the database")
+	defer DB.Close()
+	payload := strings.NewReader(`{
+		"title": "testTitle",
+		"authorID": 1
+	}`)
+	req, _ := http.NewRequest("POST", "/new/book", payload)
+	res := httptest.NewRecorder()
+	router().ServeHTTP(res, req)
+	assert.Equal(t, 200, res.Code, "Failed to handle CORRECT data")
+	payload = strings.NewReader(`{
+    "title": "TeeeeeeessssssssssssttttttttttTitleeeeeeeeeeeeee",
+    "authorID": 999999
+}`)
+	req, _ = http.NewRequest("POST", "/new/book", payload)
 	res = httptest.NewRecorder()
 	router().ServeHTTP(res, req)
 	assert.Equal(t, 400, res.Code, "Failed to handle INCORRECT data")
