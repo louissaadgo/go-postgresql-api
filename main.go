@@ -47,14 +47,15 @@ func main() {
 	fmt.Println("Connected to the database")
 	defer db.Close()
 	mux := mux.NewRouter()
-	mux.HandleFunc("/books", books).Methods("GET")
-	mux.HandleFunc("/authors", authors).Methods("GET")
-	mux.HandleFunc("/new/author", newAuthor).Methods("POST")
-	mux.HandleFunc("/new/book", newBook).Methods("POST")
+	mux.HandleFunc("/books", Books).Methods("GET")
+	mux.HandleFunc("/authors", Authors).Methods("GET")
+	mux.HandleFunc("/new/author", NewAuthor).Methods("POST")
+	mux.HandleFunc("/new/book", NewBook).Methods("POST")
 	log.Fatal(http.ListenAndServe(port, mux))
 }
 
-func books(w http.ResponseWriter, r *http.Request) {
+//Books shows all the books
+func Books(w http.ResponseWriter, r *http.Request) {
 	rows, err := db.Query(`SELECT books.id, title, published_at, authors.name, authors.last_name FROM books
 	JOIN authors ON authors.id = books.author_id;`)
 	if err != nil {
@@ -85,7 +86,8 @@ func books(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, string(bs))
 }
 
-func authors(w http.ResponseWriter, r *http.Request) {
+//Authors shows all the authors
+func Authors(w http.ResponseWriter, r *http.Request) {
 	rows, err := db.Query(`SELECT * FROM authors;`)
 	if err != nil {
 		fmt.Println(err)
@@ -115,7 +117,8 @@ func authors(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, string(bs))
 }
 
-func newAuthor(w http.ResponseWriter, r *http.Request) {
+//NewAuthor adds a new author
+func NewAuthor(w http.ResponseWriter, r *http.Request) {
 	authorNew := author{}
 	err := json.NewDecoder(r.Body).Decode(&authorNew)
 	if err != nil {
@@ -141,7 +144,8 @@ func newAuthor(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, "Author was successfully created")
 }
 
-func newBook(w http.ResponseWriter, r *http.Request) {
+//NewBook adds a new book
+func NewBook(w http.ResponseWriter, r *http.Request) {
 	bookNew := book{}
 	err := json.NewDecoder(r.Body).Decode(&bookNew)
 	if err != nil {
