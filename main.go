@@ -11,7 +11,8 @@ import (
 	_ "github.com/lib/pq"
 )
 
-var db *sql.DB
+//DB connection
+var DB *sql.DB
 var err error
 
 const port string = ":3024"
@@ -39,13 +40,13 @@ type queryBooks struct {
 }
 
 func main() {
-	db, err = sql.Open("postgres", "postgres://postgres:2400@localhost/library?sslmode=disable")
+	DB, err = sql.Open("postgres", "postgres://postgres:2400@localhost/library?sslmode=disable")
 	if err != nil {
 		fmt.Println(err)
 		panic(err)
 	}
 	fmt.Println("Connected to the database")
-	defer db.Close()
+	defer DB.Close()
 	mux := mux.NewRouter()
 	mux.HandleFunc("/books", Books).Methods("GET")
 	mux.HandleFunc("/authors", Authors).Methods("GET")
@@ -56,7 +57,7 @@ func main() {
 
 //Books shows all the books
 func Books(w http.ResponseWriter, r *http.Request) {
-	rows, err := db.Query(`SELECT books.id, title, published_at, authors.name, authors.last_name FROM books
+	rows, err := DB.Query(`SELECT books.id, title, published_at, authors.name, authors.last_name FROM books
 	JOIN authors ON authors.id = books.author_id;`)
 	if err != nil {
 		fmt.Println(err)
@@ -88,7 +89,7 @@ func Books(w http.ResponseWriter, r *http.Request) {
 
 //Authors shows all the authors
 func Authors(w http.ResponseWriter, r *http.Request) {
-	rows, err := db.Query(`SELECT * FROM authors;`)
+	rows, err := DB.Query(`SELECT * FROM authors;`)
 	if err != nil {
 		fmt.Println(err)
 		http.Error(w, "Something went wrong.", http.StatusBadRequest)
@@ -134,7 +135,7 @@ func NewAuthor(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Author name and last name must be at least 1 character", http.StatusBadRequest)
 		return
 	}
-	_, err = db.Exec(`INSERT INTO authors(name, last_name)
+	_, err = DB.Exec(`INSERT INTO authors(name, last_name)
 	VALUES($1, $2);`, authorNew.Name, authorNew.LastName)
 	if err != nil {
 		fmt.Println(err)
@@ -157,14 +158,14 @@ func NewBook(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Book title must be 40 characters or less", http.StatusBadRequest)
 		return
 	}
-	row := db.QueryRow(`SELECT id FROM authors WHERE id = $1;`, bookNew.AuthorID)
+	row := DB.QueryRow(`SELECT id FROM authors WHERE id = $1;`, bookNew.AuthorID)
 	var authID int
 	row.Scan(&authID)
 	if authID == 0 {
 		http.Error(w, "Author not found", http.StatusBadRequest)
 		return
 	}
-	_, err = db.Exec(`INSERT INTO books(title, author_id)
+	_, err = DB.Exec(`INSERT INTO books(title, author_id)
 	VALUES($1, $2);`, bookNew.Title, bookNew.AuthorID)
 	if err != nil {
 		fmt.Println(err)
