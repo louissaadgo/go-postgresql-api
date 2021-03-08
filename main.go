@@ -65,7 +65,17 @@ func AuthorByID(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid Author ID", http.StatusBadRequest)
 		return
 	}
-	fmt.Fprintln(w, id)
+	row := DB.QueryRow(`SELECT * FROM authors WHERE id = $1`, id)
+	authorQuery := author{}
+	err = row.Scan(&authorQuery.ID, &authorQuery.Name, &authorQuery.LastName, &authorQuery.CreatedAt)
+	if err != nil {
+		http.Error(w, "Author not found", http.StatusBadRequest)
+		return
+	}
+	bs, _ := json.Marshal(authorQuery)
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.Header().Set("X-Content-Type-Options", "nosniff")
+	fmt.Fprintln(w, string(bs))
 }
 
 //Books shows all the books
