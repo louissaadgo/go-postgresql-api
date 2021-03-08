@@ -52,9 +52,31 @@ func main() {
 	mux.HandleFunc("/books", Books).Methods("GET")
 	mux.HandleFunc("/authors", Authors).Methods("GET")
 	mux.HandleFunc("/author/{id}", AuthorByID).Methods("GET")
+	mux.HandleFunc("/book/{id}", BookByID).Methods("GET")
 	mux.HandleFunc("/new/author", NewAuthor).Methods("POST")
 	mux.HandleFunc("/new/book", NewBook).Methods("POST")
 	log.Fatal(http.ListenAndServe(port, mux))
+}
+
+//BookByID shows a specific book
+func BookByID(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	id, err := strconv.Atoi(params["id"])
+	if err != nil || id < 1 {
+		http.Error(w, "Invalid Book ID", http.StatusBadRequest)
+		return
+	}
+	row := DB.QueryRow(`SELECT * FROM books WHERE id = $1`, id)
+	bookQuery := book{}
+	err = row.Scan(&bookQuery.ID, &bookQuery.Title, &bookQuery.AuthorID, &bookQuery.PublishedAt)
+	if err != nil {
+		http.Error(w, "Book not found", http.StatusBadRequest)
+		return
+	}
+	bs, _ := json.Marshal(bookQuery)
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.Header().Set("X-Content-Type-Options", "nosniff")
+	fmt.Fprintln(w, string(bs))
 }
 
 //AuthorByID shows a specific author
