@@ -31,8 +31,8 @@ func TestNewAuthor(t *testing.T) {
 	router().ServeHTTP(res, req)
 	assert.Equal(t, 200, res.Code, "Failed to handle CORRECT data")
 	payload = strings.NewReader(`{
-    "name": "TeeeeeeessssssssssssttttttttttNAMEeeeeee",
-    "lastName": "TestlassssssssssssssssssssstNaaaaaaaaaaaaaaame"
+    "name": "testName0000000000000000000000000",
+    "lastName": "testLastName0000000000000000000000000"
 }`)
 	req, _ = http.NewRequest("POST", "/new/author", payload)
 	res = httptest.NewRecorder()
@@ -53,7 +53,7 @@ func TestNewBook(t *testing.T) {
 	router().ServeHTTP(res, req)
 	assert.Equal(t, 200, res.Code, "Failed to handle CORRECT data")
 	payload = strings.NewReader(`{
-    "title": "TeeeeeeessssssssssssttttttttttTitleeeeeeeeeeeeee",
+    "title": "testTitle000000000000000000000000000000000000000000",
     "authorID": 999999
 }`)
 	req, _ = http.NewRequest("POST", "/new/book", payload)
