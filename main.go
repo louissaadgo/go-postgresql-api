@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/gorilla/mux"
 	_ "github.com/lib/pq"
@@ -50,9 +51,21 @@ func main() {
 	mux := mux.NewRouter()
 	mux.HandleFunc("/books", Books).Methods("GET")
 	mux.HandleFunc("/authors", Authors).Methods("GET")
+	mux.HandleFunc("/author/{id}", AuthorByID).Methods("GET")
 	mux.HandleFunc("/new/author", NewAuthor).Methods("POST")
 	mux.HandleFunc("/new/book", NewBook).Methods("POST")
 	log.Fatal(http.ListenAndServe(port, mux))
+}
+
+//AuthorByID shows a specific author
+func AuthorByID(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	id, err := strconv.Atoi(params["id"])
+	if err != nil || id < 1 {
+		http.Error(w, "Invalid Author ID", http.StatusBadRequest)
+		return
+	}
+	fmt.Fprintln(w, id)
 }
 
 //Books shows all the books
