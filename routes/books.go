@@ -38,6 +38,5 @@ func Books(db *sql.DB, c *fiber.Ctx) error {
 		fmt.Println(err)
 		return fiber.NewError(400, "Something went wrong.")
 	}
-	c.JSON(books)
-	return nil
+	return c.JSON(books)
 }
