@@ -18,6 +18,9 @@ func NewBook(db *sql.DB, c *fiber.Ctx) error {
 	if len(bookNew.Title) > 40 || len(bookNew.Title) == 0 {
 		return fiber.NewError(400, "Book title must be 40 characters or less")
 	}
+	if len(bookNew.Description) < 40 || len(bookNew.Description) > 1000 {
+		return fiber.NewError(400, "Book description must be 40 characters or more, 1000 at max")
+	}
 	row := db.QueryRow(`SELECT id FROM authors WHERE id = $1;`, bookNew.AuthorID)
 	var authID int
 	row.Scan(&authID)
