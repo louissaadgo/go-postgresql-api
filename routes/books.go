@@ -7,14 +7,6 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-type queryBooks struct {
-	ID          int    `json:"id"`
-	Title       string `json:"title"`
-	PublishedAt string `json:"publishedAt"`
-	Name        string `json:"name"`
-	LastName    string `json:"lastName"`
-}
-
 //Books shows all the books
 func Books(db *sql.DB, c *fiber.Ctx) error {
 	rows, err := db.Query(`SELECT books.id, title, published_at, authors.name, authors.last_name FROM books

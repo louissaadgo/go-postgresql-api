@@ -7,13 +7,6 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-type author struct {
-	ID        int    `json:"id"`
-	Name      string `json:"name"`
-	LastName  string `json:"lastName"`
-	CreatedAt string `json:"createdAt"`
-}
-
 //Authors k
 func Authors(db *sql.DB, c *fiber.Ctx) error {
 	rows, err := db.Query(`SELECT * FROM authors;`)

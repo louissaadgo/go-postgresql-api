@@ -7,13 +7,6 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-type book struct {
-	ID          int    `json:"id"`
-	Title       string `json:"title"`
-	AuthorID    int    `json:"authorID"`
-	PublishedAt string `json:"publishedAt"`
-}
-
 //NewBook n
 func NewBook(db *sql.DB, c *fiber.Ctx) error {
 	bookNew := book{}
