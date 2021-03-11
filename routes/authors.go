@@ -9,7 +9,7 @@ import (
 
 //Authors gets all the authors in the database
 func Authors(db *sql.DB, c *fiber.Ctx) error {
-	rows, err := db.Query(`SELECT * FROM authors;`)
+	rows, err := db.Query(`SELECT id, email, name, last_name, created_at, updated_at FROM authors;`)
 	if err != nil {
 		fmt.Println(err)
 		return fiber.NewError(400, "Something went wrong, please try again soon.")
@@ -18,7 +18,7 @@ func Authors(db *sql.DB, c *fiber.Ctx) error {
 	authors := make([]author, 0)
 	for rows.Next() {
 		auth := author{}
-		err := rows.Scan(&auth.ID, &auth.Name, &auth.LastName, &auth.CreatedAt)
+		err := rows.Scan(&auth.ID, &auth.Email, &auth.Name, &auth.LastName, &auth.CreatedAt, &auth.UpdatedAt)
 		if err != nil {
 			fmt.Println(err)
 			return fiber.NewError(400, "Something went wrong.")

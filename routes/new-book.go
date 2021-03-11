@@ -24,8 +24,8 @@ func NewBook(db *sql.DB, c *fiber.Ctx) error {
 	if authID == 0 {
 		return fiber.NewError(400, "Author not found")
 	}
-	_, err = db.Exec(`INSERT INTO books(title, author_id)
-	VALUES($1, $2);`, bookNew.Title, bookNew.AuthorID)
+	_, err = db.Exec(`INSERT INTO books(title, author_id, description)
+	VALUES($1, $2, $3);`, bookNew.Title, bookNew.AuthorID, bookNew.Description)
 	if err != nil {
 		fmt.Println(err)
 		return fiber.NewError(400, "Something went wrong, please try again soon.")

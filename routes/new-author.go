@@ -21,8 +21,8 @@ func NewAuthor(db *sql.DB, c *fiber.Ctx) error {
 	if len(authorNew.Name) == 0 || len(authorNew.LastName) == 0 {
 		return fiber.NewError(400, "Author name and last name must be at least 1 character")
 	}
-	_, err = db.Exec(`INSERT INTO authors(name, last_name)
-	VALUES($1, $2);`, authorNew.Name, authorNew.LastName)
+	_, err = db.Exec(`INSERT INTO authors(email, password, name, last_name)
+	VALUES($1, $2, $3, $4);`, authorNew.Email, authorNew.Password, authorNew.Name, authorNew.LastName)
 	if err != nil {
 		fmt.Println(err)
 		return fiber.NewError(400, "Something went wrong, please try again soon.")

@@ -9,7 +9,7 @@ import (
 
 //Books gets all the books in the database
 func Books(db *sql.DB, c *fiber.Ctx) error {
-	rows, err := db.Query(`SELECT books.id, title, published_at, authors.name, authors.last_name FROM books
+	rows, err := db.Query(`SELECT books.id, title, description, published_at, authors.name, authors.last_name FROM books
 	JOIN authors ON authors.id = books.author_id;`)
 	if err != nil {
 		fmt.Println(err)
@@ -19,7 +19,7 @@ func Books(db *sql.DB, c *fiber.Ctx) error {
 	books := make([]queryBooks, 0)
 	for rows.Next() {
 		bookNew := queryBooks{}
-		err := rows.Scan(&bookNew.ID, &bookNew.Title, &bookNew.PublishedAt, &bookNew.Name, &bookNew.LastName)
+		err := rows.Scan(&bookNew.ID, &bookNew.Title, &bookNew.Description, &bookNew.PublishedAt, &bookNew.Name, &bookNew.LastName)
 		if err != nil {
 			fmt.Println(err)
 			return fiber.NewError(400, "Something went wrong.")
