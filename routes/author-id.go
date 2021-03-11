@@ -7,7 +7,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-//AuthorByID a
+//AuthorByID gets a specific author by his ID
 func AuthorByID(db *sql.DB, c *fiber.Ctx) error {
 	id, err := strconv.Atoi(c.Params("id"))
 	if err != nil || id < 1 {

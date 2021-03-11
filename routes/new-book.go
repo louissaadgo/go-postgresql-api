@@ -7,7 +7,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-//NewBook n
+//NewBook creates a new book
 func NewBook(db *sql.DB, c *fiber.Ctx) error {
 	bookNew := book{}
 	err := c.BodyParser(&bookNew)

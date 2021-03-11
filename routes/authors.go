@@ -7,12 +7,12 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-//Authors k
+//Authors gets all the authors in the database
 func Authors(db *sql.DB, c *fiber.Ctx) error {
 	rows, err := db.Query(`SELECT * FROM authors;`)
 	if err != nil {
 		fmt.Println(err)
-		return fiber.NewError(400, "Something went wrong.")
+		return fiber.NewError(400, "Something went wrong, please try again soon.")
 	}
 	defer rows.Close()
 	authors := make([]author, 0)

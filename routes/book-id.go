@@ -7,7 +7,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-//BookByID j
+//BookByID get a specific book by its ID
 func BookByID(db *sql.DB, c *fiber.Ctx) error {
 	id, err := strconv.Atoi(c.Params("id"))
 	if err != nil || id < 1 {

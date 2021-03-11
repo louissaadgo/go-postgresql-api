@@ -7,13 +7,13 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-//Books shows all the books
+//Books gets all the books in the database
 func Books(db *sql.DB, c *fiber.Ctx) error {
 	rows, err := db.Query(`SELECT books.id, title, published_at, authors.name, authors.last_name FROM books
 	JOIN authors ON authors.id = books.author_id;`)
 	if err != nil {
 		fmt.Println(err)
-		return fiber.NewError(400, "Something went wrong.")
+		return fiber.NewError(400, "Something went wrong, please try again soon.")
 	}
 	defer rows.Close()
 	books := make([]queryBooks, 0)

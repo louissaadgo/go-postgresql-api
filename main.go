@@ -9,11 +9,13 @@ import (
 	"github.com/louissaadgo/go-postgresql-api/routes"
 )
 
-//DB connection
-var DB *sql.DB
-var err error
-
 const port string = ":3024"
+
+var (
+	//DB connection
+	DB  *sql.DB
+	err error
+)
 
 func main() {
 	DB, err = sql.Open("postgres", "postgres://postgres:2400@localhost/library?sslmode=disable")
@@ -21,26 +23,33 @@ func main() {
 		fmt.Println(err)
 		panic(err)
 	}
-	fmt.Println("Connected to the database")
 	defer DB.Close()
+
 	app := fiber.New()
+
 	app.Get("/books", func(c *fiber.Ctx) error {
 		return routes.Books(DB, c)
 	})
+
 	app.Get("/authors", func(c *fiber.Ctx) error {
 		return routes.Authors(DB, c)
 	})
+
 	app.Post("/new/author", func(c *fiber.Ctx) error {
 		return routes.NewAuthor(DB, c)
 	})
+
 	app.Post("/new/book", func(c *fiber.Ctx) error {
 		return routes.NewBook(DB, c)
 	})
+
 	app.Get("/author/:id", func(c *fiber.Ctx) error {
 		return routes.AuthorByID(DB, c)
 	})
+
 	app.Get("/book/:id", func(c *fiber.Ctx) error {
 		return routes.BookByID(DB, c)
 	})
+
 	app.Listen(port)
 }
