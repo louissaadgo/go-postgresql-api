@@ -4,12 +4,13 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"strconv"
 
+	"github.com/gofiber/fiber/v2"
 	"github.com/gorilla/mux"
 	_ "github.com/lib/pq"
+	"github.com/louissaadgo/go-postgresql-api/routes"
 )
 
 //DB connection
@@ -48,14 +49,19 @@ func main() {
 	}
 	fmt.Println("Connected to the database")
 	defer DB.Close()
-	mux := mux.NewRouter()
-	mux.HandleFunc("/books", Books).Methods("GET")
-	mux.HandleFunc("/authors", Authors).Methods("GET")
-	mux.HandleFunc("/author/{id}", AuthorByID).Methods("GET")
-	mux.HandleFunc("/book/{id}", BookByID).Methods("GET")
-	mux.HandleFunc("/new/author", NewAuthor).Methods("POST")
-	mux.HandleFunc("/new/book", NewBook).Methods("POST")
-	log.Fatal(http.ListenAndServe(port, mux))
+	app := fiber.New()
+	app.Get("/books", func(c *fiber.Ctx) error {
+		return routes.Books(DB, c)
+	})
+	app.Get("/authors", func(c *fiber.Ctx) error {
+		return routes.Authors(DB, c)
+	})
+	app.Listen(port)
+	// mux.HandleFunc("/author/{id}", AuthorByID).Methods("GET")
+	// mux.HandleFunc("/book/{id}", BookByID).Methods("GET")
+	// mux.HandleFunc("/new/author", NewAuthor).Methods("POST")
+	// mux.HandleFunc("/new/book", NewBook).Methods("POST")
+	// log.Fatal(http.ListenAndServe(port, mux))
 }
 
 //BookByID shows a specific book
@@ -95,69 +101,6 @@ func AuthorByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	bs, _ := json.Marshal(authorQuery)
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	w.Header().Set("X-Content-Type-Options", "nosniff")
-	fmt.Fprintln(w, string(bs))
-}
-
-//Books shows all the books
-func Books(w http.ResponseWriter, r *http.Request) {
-	rows, err := DB.Query(`SELECT books.id, title, published_at, authors.name, authors.last_name FROM books
-	JOIN authors ON authors.id = books.author_id;`)
-	if err != nil {
-		fmt.Println(err)
-		http.Error(w, "Something went wrong.", http.StatusBadRequest)
-		return
-	}
-	defer rows.Close()
-	books := make([]queryBooks, 0)
-	for rows.Next() {
-		bookNew := queryBooks{}
-		err := rows.Scan(&bookNew.ID, &bookNew.Title, &bookNew.PublishedAt, &bookNew.Name, &bookNew.LastName)
-		if err != nil {
-			fmt.Println(err)
-			http.Error(w, "Something went wrong.", http.StatusBadRequest)
-			return
-		}
-		books = append(books, bookNew)
-	}
-	if err = rows.Err(); err != nil {
-		fmt.Println(err)
-		http.Error(w, "Something went wrong.", http.StatusBadRequest)
-		return
-	}
-	bs, _ := json.Marshal(books)
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	w.Header().Set("X-Content-Type-Options", "nosniff")
-	fmt.Fprintln(w, string(bs))
-}
-
-//Authors shows all the authors
-func Authors(w http.ResponseWriter, r *http.Request) {
-	rows, err := DB.Query(`SELECT * FROM authors;`)
-	if err != nil {
-		fmt.Println(err)
-		http.Error(w, "Something went wrong.", http.StatusBadRequest)
-		return
-	}
-	defer rows.Close()
-	authors := make([]author, 0)
-	for rows.Next() {
-		auth := author{}
-		err := rows.Scan(&auth.ID, &auth.Name, &auth.LastName, &auth.CreatedAt)
-		if err != nil {
-			fmt.Println(err)
-			http.Error(w, "Something went wrong.", http.StatusBadRequest)
-			return
-		}
-		authors = append(authors, auth)
-	}
-	if err = rows.Err(); err != nil {
-		fmt.Println(err)
-		http.Error(w, "Something went wrong.", http.StatusBadRequest)
-		return
-	}
-	bs, _ := json.Marshal(authors)
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.Header().Set("X-Content-Type-Options", "nosniff")
 	fmt.Fprintln(w, string(bs))
