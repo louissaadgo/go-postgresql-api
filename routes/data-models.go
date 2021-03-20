@@ -1,5 +1,7 @@
 package routes
 
+import "github.com/dgrijalva/jwt-go"
+
 type author struct {
 	ID        int    `json:"id"`
 	Email     string `json:"email"`
@@ -27,3 +29,10 @@ type book struct {
 	PublishedAt string `json:"publishedAt"`
 	UpdatedAt   string `json:"updatedAt"`
 }
+
+type myCustomClaims struct {
+	name string `jason:"name"`
+	jwt.StandardClaims
+}
+
+var signkey []byte = []byte("12345")

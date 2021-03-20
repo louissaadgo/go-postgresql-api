@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"fmt"
 
+	"github.com/dgrijalva/jwt-go"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -36,5 +37,14 @@ func Signup(db *sql.DB, c *fiber.Ctx) error {
 		fmt.Println(err)
 		return fiber.NewError(400, "Something went wrong, please try again soon.")
 	}
-	return c.SendString("Author created successfully")
+	claims := myCustomClaims{
+		name: authorNew.Name,
+		StandardClaims: jwt.StandardClaims{
+			ExpiresAt: 15000,
+			Issuer:    authorNew.Name,
+		},
+	}
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	ss, _ := token.SignedString(signkey)
+	return c.SendString("Author created successfully" + ss)
 }
