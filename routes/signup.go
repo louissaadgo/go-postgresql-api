@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"encoding/hex"
 	"fmt"
+	"time"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gofiber/fiber/v2"
@@ -46,5 +47,10 @@ func Signup(db *sql.DB, c *fiber.Ctx) error {
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	ss, _ := token.SignedString(signkey)
-	return c.SendString("Author created successfully" + ss)
+	cookie := new(fiber.Cookie)
+	cookie.Name = "jwt"
+	cookie.Value = ss
+	cookie.Expires = time.Now().Add(24 * time.Hour)
+	c.Cookie(cookie)
+	return c.SendString("Author created successfully")
 }
