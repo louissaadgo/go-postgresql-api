@@ -7,8 +7,8 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-//NewAuthor creates a new author
-func NewAuthor(db *sql.DB, c *fiber.Ctx) error {
+//Signup creates a new author
+func Signup(db *sql.DB, c *fiber.Ctx) error {
 	authorNew := author{}
 	err := c.BodyParser(&authorNew)
 	if err != nil {

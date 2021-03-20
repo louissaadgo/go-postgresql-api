@@ -35,8 +35,8 @@ func main() {
 		return routes.Authors(DB, c)
 	})
 
-	app.Post("/new/author", func(c *fiber.Ctx) error {
-		return routes.NewAuthor(DB, c)
+	app.Post("/Signup", func(c *fiber.Ctx) error {
+		return routes.Signup(DB, c)
 	})
 
 	app.Post("/new/book", func(c *fiber.Ctx) error {
