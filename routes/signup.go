@@ -1,7 +1,9 @@
 package routes
 
 import (
+	"crypto/sha256"
 	"database/sql"
+	"encoding/hex"
 	"fmt"
 
 	"github.com/gofiber/fiber/v2"
@@ -27,8 +29,9 @@ func Signup(db *sql.DB, c *fiber.Ctx) error {
 	if len(authorNew.Password) < 8 || len(authorNew.Password) > 256 {
 		return fiber.NewError(400, "Author password must be at least 8 characters or 256 at max")
 	}
+	h := sha256.Sum256([]byte(authorNew.Password))
 	_, err = db.Exec(`INSERT INTO authors(email, password, name, last_name)
-	VALUES($1, $2, $3, $4);`, authorNew.Email, authorNew.Password, authorNew.Name, authorNew.LastName)
+	VALUES($1, $2, $3, $4);`, authorNew.Email, hex.EncodeToString(h[:]), authorNew.Name, authorNew.LastName)
 	if err != nil {
 		fmt.Println(err)
 		return fiber.NewError(400, "Something went wrong, please try again soon.")
