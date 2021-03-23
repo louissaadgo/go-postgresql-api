@@ -39,6 +39,10 @@ func main() {
 		return routes.Signup(DB, c)
 	})
 
+	app.Post("/Signin", func(c *fiber.Ctx) error {
+		return routes.Signin(DB, c)
+	})
+
 	app.Post("/new/book", func(c *fiber.Ctx) error {
 		return routes.NewBook(DB, c)
 	})
