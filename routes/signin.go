@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/dgrijalva/jwt-go"
 	"github.com/gofiber/fiber/v2"
+	"github.com/louissaadgo/go-postgresql-api/auth"
 )
 
 //Signin signs an old author
@@ -36,18 +36,11 @@ func Signin(db *sql.DB, c *fiber.Ctx) error {
 	if pass != authorQuery.Password {
 		return fiber.NewError(400, "Wrong credentials")
 	}
-	claims := myCustomClaims{
-		name: authorQuery.Name,
-		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: 15000,
-			Issuer:    authorQuery.Name,
-		},
-	}
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	ss, _ := token.SignedString(signkey)
+	maker, _ := auth.NewPasetoMaker(signkey)
+	token, _ := maker.CreateToken(authorQuery.Email, time.Hour*24)
 	cookie := new(fiber.Cookie)
-	cookie.Name = "jwt"
-	cookie.Value = ss
+	cookie.Name = "session"
+	cookie.Value = token
 	cookie.Expires = time.Now().Add(24 * time.Hour)
 	c.Cookie(cookie)
 	return c.SendString("Logged in successfully")

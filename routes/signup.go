@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/dgrijalva/jwt-go"
 	"github.com/gofiber/fiber/v2"
+	"github.com/louissaadgo/go-postgresql-api/auth"
 )
 
 //Signup creates a new author
@@ -38,18 +38,11 @@ func Signup(db *sql.DB, c *fiber.Ctx) error {
 		fmt.Println(err)
 		return fiber.NewError(400, "Something went wrong, please try again soon.")
 	}
-	claims := myCustomClaims{
-		name: authorNew.Name,
-		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: 15000,
-			Issuer:    authorNew.Name,
-		},
-	}
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	ss, _ := token.SignedString(signkey)
+	maker, _ := auth.NewPasetoMaker(signkey)
+	token, _ := maker.CreateToken(authorNew.Email, time.Hour*24)
 	cookie := new(fiber.Cookie)
-	cookie.Name = "jwt"
-	cookie.Value = ss
+	cookie.Name = "session"
+	cookie.Value = token
 	cookie.Expires = time.Now().Add(24 * time.Hour)
 	c.Cookie(cookie)
 	return c.SendString("Author created successfully")
