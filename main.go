@@ -25,7 +25,9 @@ func main() {
 	}
 	defer DB.Close()
 
-	app := fiber.New()
+	app := fiber.New(fiber.Config{
+		CaseSensitive: true,
+	})
 
 	app.Get("/books", func(c *fiber.Ctx) error {
 		return routes.Books(DB, c)
