@@ -14,7 +14,6 @@ func NewBook(db *sql.DB, c *fiber.Ctx) error {
 	bookNew := validation.NewBook{}
 	err := c.BodyParser(&bookNew)
 	if err != nil {
-		fmt.Println(err)
 		return fiber.NewError(400, "Invalid JSON")
 	}
 	errors := bookNew.Validate()

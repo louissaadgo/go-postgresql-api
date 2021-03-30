@@ -4,7 +4,6 @@ import (
 	"crypto/sha256"
 	"database/sql"
 	"encoding/hex"
-	"fmt"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -17,7 +16,6 @@ func Signin(db *sql.DB, c *fiber.Ctx) error {
 	authorOld := validation.OldAuthor{}
 	err := c.BodyParser(&authorOld)
 	if err != nil {
-		fmt.Println(err)
 		return fiber.NewError(400, "Invalid JSON.")
 	}
 	errors := authorOld.Validate()

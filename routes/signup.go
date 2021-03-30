@@ -17,7 +17,6 @@ func Signup(db *sql.DB, c *fiber.Ctx) error {
 	authorNew := validation.NewAuthor{}
 	err := c.BodyParser(&authorNew)
 	if err != nil {
-		fmt.Println(err)
 		return fiber.NewError(400, "Invalid JSON.")
 	}
 	errors := authorNew.Validate()
