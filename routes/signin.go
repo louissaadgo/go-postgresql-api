@@ -9,25 +9,26 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/louissaadgo/go-postgresql-api/auth"
+	"github.com/louissaadgo/go-postgresql-api/validation"
 )
 
 //Signin signs an old author
 func Signin(db *sql.DB, c *fiber.Ctx) error {
-	authorNew := author{}
-	err := c.BodyParser(&authorNew)
+	authorOld := validation.OldAuthor{}
+	err := c.BodyParser(&authorOld)
 	if err != nil {
 		fmt.Println(err)
 		return fiber.NewError(400, "Invalid JSON.")
 	}
-	if len(authorNew.Email) < 10 || len(authorNew.Email) > 200 {
-		return fiber.NewError(400, "Author email must be at least 10 characters or 200 at max")
+	errors := authorOld.Validate()
+	if errors != nil {
+		c.Status(400)
+		c.JSON(errors)
+		return nil
 	}
-	if len(authorNew.Password) < 8 || len(authorNew.Password) > 256 {
-		return fiber.NewError(400, "Author password must be at least 8 characters or 256 at max")
-	}
-	h := sha256.Sum256([]byte(authorNew.Password))
+	h := sha256.Sum256([]byte(authorOld.Password))
 	pass := hex.EncodeToString(h[:])
-	row := db.QueryRow(`SELECT id, email, name, last_name, password FROM authors WHERE email = $1;`, authorNew.Email)
+	row := db.QueryRow(`SELECT id, email, name, last_name, password FROM authors WHERE email = $1;`, authorOld.Email)
 	authorQuery := author{}
 	err = row.Scan(&authorQuery.ID, &authorQuery.Email, &authorQuery.Name, &authorQuery.LastName, &authorQuery.Password)
 	if err != nil {
