@@ -6,21 +6,22 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/louissaadgo/go-postgresql-api/auth"
+	"github.com/louissaadgo/go-postgresql-api/validation"
 )
 
 //NewBook creates a new book
 func NewBook(db *sql.DB, c *fiber.Ctx) error {
-	bookNew := book{}
+	bookNew := validation.NewBook{}
 	err := c.BodyParser(&bookNew)
 	if err != nil {
 		fmt.Println(err)
 		return fiber.NewError(400, "Invalid JSON")
 	}
-	if len(bookNew.Title) > 40 || len(bookNew.Title) == 0 {
-		return fiber.NewError(400, "Book title must be 40 characters or less")
-	}
-	if len(bookNew.Description) < 40 || len(bookNew.Description) > 1000 {
-		return fiber.NewError(400, "Book description must be 40 characters or more, 1000 at max")
+	errors := bookNew.Validate()
+	if errors != nil {
+		c.Status(400)
+		c.JSON(errors)
+		return nil
 	}
 	row := db.QueryRow(`SELECT id, email FROM authors WHERE id = $1;`, bookNew.AuthorID)
 	var authID int
