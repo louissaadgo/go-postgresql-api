@@ -1,9 +1,7 @@
 package routes
 
 import (
-	"crypto/sha256"
 	"database/sql"
-	"encoding/hex"
 	"fmt"
 	"time"
 
@@ -25,9 +23,8 @@ func Signup(db *sql.DB, c *fiber.Ctx) error {
 		c.JSON(errors)
 		return nil
 	}
-	h := sha256.Sum256([]byte(authorNew.Password))
 	_, err = db.Exec(`INSERT INTO authors(email, password, name, last_name)
-	VALUES($1, $2, $3, $4);`, authorNew.Email, hex.EncodeToString(h[:]), authorNew.Name, authorNew.LastName)
+	VALUES($1, $2, $3, $4);`, authorNew.Email, auth.HashPassword(authorNew.Password), authorNew.Name, authorNew.LastName)
 	if err != nil {
 		fmt.Println(err)
 		return fiber.NewError(400, "Something went wrong, please try again soon.")

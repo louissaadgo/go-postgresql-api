@@ -1,9 +1,7 @@
 package routes
 
 import (
-	"crypto/sha256"
 	"database/sql"
-	"encoding/hex"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -24,15 +22,13 @@ func Signin(db *sql.DB, c *fiber.Ctx) error {
 		c.JSON(errors)
 		return nil
 	}
-	h := sha256.Sum256([]byte(authorOld.Password))
-	pass := hex.EncodeToString(h[:])
 	row := db.QueryRow(`SELECT id, email, name, last_name, password FROM authors WHERE email = $1;`, authorOld.Email)
 	authorQuery := author{}
 	err = row.Scan(&authorQuery.ID, &authorQuery.Email, &authorQuery.Name, &authorQuery.LastName, &authorQuery.Password)
 	if err != nil {
 		return fiber.NewError(400, "User not found")
 	}
-	if pass != authorQuery.Password {
+	if auth.HashPassword(authorOld.Password) != authorQuery.Password {
 		return fiber.NewError(400, "Wrong credentials")
 	}
 	maker, _ := auth.NewPasetoMaker(signkey)
