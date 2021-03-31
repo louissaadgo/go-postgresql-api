@@ -31,12 +31,10 @@ func Signin(db *sql.DB, c *fiber.Ctx) error {
 	if auth.HashPassword(authorOld.Password) != authorQuery.Password {
 		return fiber.NewError(400, "Wrong credentials")
 	}
-	maker, _ := auth.NewPasetoMaker(signkey)
-	token, _ := maker.CreateToken(authorQuery.Email, time.Hour*24)
-	cookie := new(fiber.Cookie)
-	cookie.Name = "session"
-	cookie.Value = token
-	cookie.Expires = time.Now().Add(24 * time.Hour)
+	cookie, err := auth.NewPasetoCookie(signkey, authorQuery.Email, time.Hour*24)
+	if err != nil {
+		return fiber.NewError(400, "Something went wrong, please try again soon.")
+	}
 	c.Cookie(cookie)
 	return c.SendString("Logged in successfully")
 }

@@ -33,7 +33,6 @@ func NewBook(db *sql.DB, c *fiber.Ctx) error {
 	maker, _ := auth.NewPasetoMaker(signkey)
 	payload, err := maker.VerifyToken(cookie)
 	if err != nil {
-		fmt.Println(err)
 		return fiber.NewError(400, "Invalid token")
 	}
 	newrow := db.QueryRow(`SELECT id FROM authors WHERE email = $1;`, payload.Username)

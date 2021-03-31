@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/gofiber/fiber/v2"
 	"github.com/o1egl/paseto"
 	"golang.org/x/crypto/chacha20poly1305"
 )
@@ -44,4 +45,20 @@ func (maker *PasetoMaker) VerifyToken(token string) (*Payload, error) {
 		return nil, err
 	}
 	return payload, nil
+}
+
+func NewPasetoCookie(key string, email string, duration time.Duration) (*fiber.Cookie, error) {
+	maker, err := NewPasetoMaker(key)
+	if err != nil {
+		return nil, err
+	}
+	token, err := maker.CreateToken(email, duration)
+	if err != nil {
+		return nil, err
+	}
+	cookie := new(fiber.Cookie)
+	cookie.Name = "session"
+	cookie.Value = token
+	cookie.Expires = time.Now().Add(24 * time.Hour)
+	return cookie, nil
 }
