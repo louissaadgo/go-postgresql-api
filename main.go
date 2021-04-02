@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	_ "github.com/lib/pq"
 	"github.com/louissaadgo/go-postgresql-api/routes"
 )
@@ -26,6 +27,7 @@ func main() {
 	defer DB.Close()
 
 	app := fiber.New()
+	app.Use(cors.New())
 
 	app.Get("/books", func(c *fiber.Ctx) error {
 		return routes.Books(DB, c)
